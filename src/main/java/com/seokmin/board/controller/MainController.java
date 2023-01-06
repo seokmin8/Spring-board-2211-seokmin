@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.seokmin.board.dto.HelloDto;
+import com.seokmin.board.dto.response.ResponseDto;
 
 // Response로 HTML을 반환하는 Controller가 아닌
 // Response Body에 직접 데이터를 담아 응답하는 Controller
@@ -56,16 +57,20 @@ public class MainController {
 	}
 
 	// @PostMapping(end-point) : 해당 end-point로 Post방식의 Request가 왔을 때 동작
-	
+
 	@PostMapping(HELLO)
-	
+
 //	@RequestBody : 해당 Request의 Body에서 Json을 인식해 인스턴스로 변경
 //	public String postHello(@RequestBody HelloDto requestBody) {
 //		return requestBody.toString();
 	// 받은걸 바로 출력해줌
-	public HelloDto postHello(@RequestBody HelloDto requestBody) {
-		return requestBody;
-		// json 형태로 다시 받음
+//	public HelloDto postHello(@RequestBody HelloDto requestBody) {
+//		return requestBody;
+//	json 형태로 다시 받음
+	public ResponseDto<HelloDto> postHello(@RequestBody HelloDto requestBody) {
+		
+		return ResponseDto.setSuccess("hello", requestBody);
+		// 
 	}
 
 	// @PutMapping(end-point) : 해당 end-point로 Put 방식의 Request가 왔을 때 동작
