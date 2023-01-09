@@ -1,6 +1,7 @@
 package com.seokmin.board.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,4 +34,16 @@ public class AuthController {
 		// login import는 수작업으로
 		// login 앞 뒤의 괄호들을 채워주자
 	}
+	
+	// 추가된 내용 memberRepository 생성 후
+	
+	@GetMapping("")
+	public String hello() {
+		return authService.hello();
+	}
+	
+	///////////////////////////////////////////////////////////
+	
+	// auth post가 
+	// 
 }
