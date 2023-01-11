@@ -5,8 +5,9 @@ import org.springframework.stereotype.Service;
 
 import com.seokmin.board.dto.response.ResponseDto;
 import com.seokmin.board.dto.user.GetUserResponseDto;
+import com.seokmin.board.dto.user.PatchUserDto;
 import com.seokmin.board.dto.user.PostUserDto;
-import com.seokmin.board.dto.user.PostUserResponseDto;
+import com.seokmin.board.dto.user.ResultResponseDto;
 import com.seokmin.board.entity.MemberEntity;
 import com.seokmin.board.repository.MemberRepository;
 
@@ -68,7 +69,7 @@ public class UserService {
 	      // 위의 3가지 로직들과 같지만, 결국 생성자를 생성해서 간단하게 정리해버림
 	}
 	
-	public ResponseDto<PostUserResponseDto> postUser(PostUserDto dto) {
+	public ResponseDto<ResultResponseDto> postUser(PostUserDto dto) {
 
 		// DB에 해당 이메일이 존재하는지 체크
 		// 존재한다면 Failed Response를 반환
@@ -118,6 +119,48 @@ public class UserService {
 		// 존재하는 Entity UPDATE 작업을 수행
 		memberRepository.save(member);
 
-		return ResponseDto.setSuccess("회원가입에 성공했습니다.", new PostUserResponseDto(true));
+		return ResponseDto.setSuccess("회원가입에 성공했습니다.", new ResultResponseDto(true));
 	}
+	
+	public ResponseDto<GetUserResponseDto> patchUser(PatchUserDto dto) {
+		// dto에서 이메일을 가져옴
+		String email = dto.getEmail();
+		// 해당하는 email의 user정보를 가져와야 함
+		
+		// repository를 이용해서 DB에 있는 member 테이블 중
+		// 해당 email에 해당하는 데이터를 불러옴
+		MemberEntity member = null;
+		try {
+			member = memberRepository.findById(email).get();
+		} catch (Exception e) {
+			// 만약 존재하지 않으면 Failed Response로 "Not Exist User" 반환
+			return ResponseDto.setFailed("Not Exist User");
+		}
+		// 2개를 바꿔줄것이다
+		// Request Body로 받은 Nickname과 profile로 각각 변경
+		member.setNickname(dto.getNickname());
+		member.setProfile(dto.getProfile());
+		
+		// 변경한 entity를 repository를 이용해서 데이터베이스에 적용(저장)
+		memberRepository.save(member);
+		
+		// 결과를 ResponseDto에 담아서 반환
+		return ResponseDto.setSuccess("User Patch Success", new GetUserResponseDto(member));
+	}
+	
+	public ResponseDto<ResultResponseDto> deleteUser(String email) { 
+		// repository를 이용해 DB에 있는 member테이블 중
+		// email이 해당되는 데이터를 삭제
+		memberRepository.deleteById(email);
+		// 검증 후 존재하지 않는다면 존재하지 않는다는 메세지 반환하거나
+		// 예외발생 등 실패 시 실패했다고 반환하지만
+		// delete는 해당 email이 있든 없든 진행해버림.
+		return ResponseDto.setSuccess(email, new ResultResponseDto(true));
+	}
+	
+	
 }
+
+
+
+
