@@ -1,5 +1,7 @@
 package com.seokmin.board.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import com.seokmin.board.dto.user.GetUserResponseDto;
 import com.seokmin.board.dto.user.PatchUserDto;
 import com.seokmin.board.dto.user.PostUserDto;
 import com.seokmin.board.dto.user.ResultResponseDto;
+import com.seokmin.board.repository.MemberRepository;
 import com.seokmin.board.service.UserService;
 
 @RestController
@@ -22,6 +25,8 @@ import com.seokmin.board.service.UserService;
 public class UserController {
 	
 	@Autowired UserService userService;
+	
+	
 	
 	@PostMapping("")
 	// 추가 end-point는 없음
@@ -53,4 +58,13 @@ public class UserController {
 		// deleteUser값은 path variable
 		return userService.deleteUser(email);
 	}
+	// 0112 추가
+		// get -> api/user/~ 모든 유저정보를 다 받아올 수 있도록 ( GET )
+		// 컨트롤러의 requestmapping 에서 api~/~ 까지의 모든 정보를 찾음
+		// 서비스로 넘어감, DB에서 모든 유저를 찾음(db.find) -> repository(call함)를 거치게 됨
+		// 결과로 넘겨주고 다시 받은값이 또 위로 반환됨
+		@GetMapping("")
+		public ResponseDto<List<GetUserResponseDto>> getAlluser() {
+			return userService.getAllUser();
+		}
 }

@@ -1,5 +1,8 @@
 package com.seokmin.board.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +21,32 @@ public class UserService {
 	MemberRepository memberRepository;
 	// 엔터티명을 따라감
 	MemberEntity member;
-	
+
+	// 0112 추가
+	public ResponseDto<List<GetUserResponseDto>> getAllUser() {
+		List<MemberEntity> memberList = memberRepository.findAll();
+		
+		List<GetUserResponseDto> data = new ArrayList<GetUserResponseDto>();
+		
+		for(MemberEntity member: memberList) {
+			data.add(new GetUserResponseDto(member));
+		}
+		
+		return ResponseDto.setSuccess("Get user list Success", data);
+	}
+
 	public ResponseDto<GetUserResponseDto> getUser(String email) {
 		// controller에서 검증이 이뤄지니 여기선 검증필요 없음
 		// 해당 email의 정보를 DB에서 검색
 		MemberEntity member;
-	      
-	      try {
-	         member = memberRepository.findById(email).get();
-	      } 
-	      // 존재하지 않으면 "Not Exist User" 메세지를 포함한 Failed Response 반환
-	      catch (Exception e) {
-	         return ResponseDto.setFailed("Not Exist User");
-	      }
+
+		try {
+			member = memberRepository.findById(email).get();
+		}
+		// 존재하지 않으면 "Not Exist User" 메세지를 포함한 Failed Response 반환
+		catch (Exception e) {
+			return ResponseDto.setFailed("Not Exist User");
+		}
 		// 존재하면 User정보 반환
 		// 1
 //      GetUserResponseDto responseData = new GetUserResponseDto();
@@ -41,8 +57,8 @@ public class UserService {
 //      responseData.setAddress(member.getAddress());
 //      
 //      return ResponseDto.setSuccess("Get User Success", responseData);
-		
-		 // 2 GetUserResponse Class에 Builder 추가
+
+		// 2 GetUserResponse Class에 Builder 추가
 //      GetUserResponseDto responseData = 
 //            GetUserResponseDto
 //            .builder()
@@ -54,7 +70,7 @@ public class UserService {
 //            .build();
 //      
 //      return ResponseDto.setSuccess("Get User Success", responseData);
-		
+
 		// 3 => 이걸 변형해서 아래에 다시 정의
 //		return ResponseDto.setSuccess("Get User Success",
 //				new GetUserResponseDto(
@@ -65,10 +81,10 @@ public class UserService {
 //						member.getAddress()
 //						)
 //				);
-	      return ResponseDto.setSuccess("Get User Success", new GetUserResponseDto(member));
-	      // 위의 3가지 로직들과 같지만, 결국 생성자를 생성해서 간단하게 정리해버림
+		return ResponseDto.setSuccess("Get User Success", new GetUserResponseDto(member));
+		// 위의 3가지 로직들과 같지만, 결국 생성자를 생성해서 간단하게 정리해버림
 	}
-	
+
 	public ResponseDto<ResultResponseDto> postUser(PostUserDto dto) {
 
 		// DB에 해당 이메일이 존재하는지 체크
@@ -77,17 +93,16 @@ public class UserService {
 		String email = dto.getEmail();
 		MemberEntity member;
 		// dto에 존재하는 email 꺼내오기
-		
+
 		try {
-			if(memberRepository.existsById(email))
+			if (memberRepository.existsById(email))
 				return ResponseDto.setFailed("이미 존재하는 email 입니다");
 		} catch (Exception e) {
 			return ResponseDto.setFailed("데이터베이스 오류입니다");
 		}
-		
-		// 아래에서 안된 이유는?? 
-		
-		
+
+		// 아래에서 안된 이유는??
+
 //		try {
 //			member = memberRepository.findById(email).get();
 //			// repository가 사용되면 try catch문 안에 넣어준다 
@@ -105,12 +120,8 @@ public class UserService {
 		if (!password.equals(password2)) {
 			return ResponseDto.setFailed("비밀번호가 서로 다릅니다");
 		}
-		member = MemberEntity
-				.builder()
-				.email(dto.getEmail()).password(dto.getPassword())
-				.nickname(dto.getNickname())
-				.telNumber(dto.getTelNumber())
-				.address(dto.getAddress() + " " + dto.getAddressDetail()).build();
+		member = MemberEntity.builder().email(dto.getEmail()).password(dto.getPassword()).nickname(dto.getNickname())
+				.telNumber(dto.getTelNumber()).address(dto.getAddress() + " " + dto.getAddressDetail()).build();
 
 		// JpaRepository.save(Entity) 메서드
 		// 해당 Entity Id가 DB table에 존재하지 않으면
@@ -121,12 +132,12 @@ public class UserService {
 
 		return ResponseDto.setSuccess("회원가입에 성공했습니다.", new ResultResponseDto(true));
 	}
-	
+
 	public ResponseDto<GetUserResponseDto> patchUser(PatchUserDto dto) {
 		// dto에서 이메일을 가져옴
 		String email = dto.getEmail();
 		// 해당하는 email의 user정보를 가져와야 함
-		
+
 		// repository를 이용해서 DB에 있는 member 테이블 중
 		// 해당 email에 해당하는 데이터를 불러옴
 		MemberEntity member = null;
@@ -140,15 +151,15 @@ public class UserService {
 		// Request Body로 받은 Nickname과 profile로 각각 변경
 		member.setNickname(dto.getNickname());
 		member.setProfile(dto.getProfile());
-		
+
 		// 변경한 entity를 repository를 이용해서 데이터베이스에 적용(저장)
 		memberRepository.save(member);
-		
+
 		// 결과를 ResponseDto에 담아서 반환
 		return ResponseDto.setSuccess("User Patch Success", new GetUserResponseDto(member));
 	}
-	
-	public ResponseDto<ResultResponseDto> deleteUser(String email) { 
+
+	public ResponseDto<ResultResponseDto> deleteUser(String email) {
 		// repository를 이용해 DB에 있는 member테이블 중
 		// email이 해당되는 데이터를 삭제
 		memberRepository.deleteById(email);
@@ -157,10 +168,5 @@ public class UserService {
 		// delete는 해당 email이 있든 없든 진행해버림.
 		return ResponseDto.setSuccess(email, new ResultResponseDto(true));
 	}
-	
-	
+
 }
-
-
-
-

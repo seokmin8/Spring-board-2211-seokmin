@@ -1,6 +1,7 @@
 package com.seokmin.board.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,6 +13,7 @@ import com.seokmin.board.dto.auth.LoginDto;
 import com.seokmin.board.dto.response.ResponseDto;
 import com.seokmin.board.service.AuthService;
 
+@CrossOrigin(originPatterns="")
 @RestController
 @RequestMapping("api/auth/")
 // api/auth라는 그룹을 만듬
